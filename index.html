@@ -3,543 +3,219 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>AppDash — Workspace</title>
+    <title>AppDash</title>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
-      href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&display=swap"
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap"
       rel="stylesheet"
     />
     <link rel="stylesheet" href="style.css" />
   </head>
   <body>
-    <!-- GUIDE OVERLAY -->
+    <!-- overlay that dims the background during a tour -->
     <div id="guide-overlay"></div>
 
-    <!-- GUIDE TOOLTIP -->
+    <!-- tooltip box that shows up during the tour -->
     <div id="guide-tooltip">
-      <div class="tooltip-header">
-        <span class="tooltip-step" id="tt-step"></span>
-        <span class="tooltip-guide-name" id="tt-guide-name"></span>
+      <div class="tooltip-top">
+        <span id="tt-step"></span>
+        <span id="tt-guide-name"></span>
       </div>
-      <div class="tooltip-title" id="tt-title"></div>
-      <div class="tooltip-desc" id="tt-desc"></div>
-      <div class="progress-dots" id="tt-dots"></div>
-      <div class="tooltip-actions">
-        <span class="t-skip" id="tt-skip">Skip tour</span>
-        <div class="tooltip-nav">
-          <button class="t-btn" id="tt-prev">← Prev</button>
-          <button class="t-btn primary" id="tt-next">Next →</button>
+      <div id="tt-title"></div>
+      <div id="tt-desc"></div>
+      <div id="tt-dots"></div>
+      <div class="tooltip-bottom">
+        <span id="tt-skip">Skip tour</span>
+        <div class="tooltip-btns">
+          <button id="tt-prev">← Prev</button>
+          <button id="tt-next" class="btn-green">Next →</button>
         </div>
       </div>
     </div>
 
-    <!--  TOAST  -->
+    <!-- small toast notification -->
     <div id="toast"></div>
 
-    <!--  APP SHELL  -->
-    <div class="app-shell">
-      <!-- NAVBAR -->
-      <nav class="navbar">
+    <!-- main app wrapper -->
+    <div class="app">
+      <!-- top navbar -->
+      <div class="navbar">
         <div class="nav-left">
-          <div class="nav-logo">
-            <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
-              <rect width="20" height="20" rx="6" fill="#16a34a" />
-              <rect x="5" y="5" width="4" height="4" rx="1" fill="white" />
-              <rect
-                x="11"
-                y="5"
-                width="4"
-                height="4"
-                rx="1"
-                fill="white"
-                opacity="0.6"
-              />
-              <rect
-                x="5"
-                y="11"
-                width="4"
-                height="4"
-                rx="1"
-                fill="white"
-                opacity="0.6"
-              />
-              <rect x="11" y="11" width="4" height="4" rx="1" fill="white" />
-            </svg>
+          <!-- logo -->
+          <div class="logo">
+            <div class="logo-icon">
+              <div class="logo-sq tl"></div>
+              <div class="logo-sq tr"></div>
+              <div class="logo-sq bl"></div>
+              <div class="logo-sq br"></div>
+            </div>
             <span>AppDash</span>
           </div>
-          <div class="nav-breadcrumb">
+          <!-- breadcrumb -->
+          <div class="breadcrumb">
             <span>Workspace</span>
-            <span class="breadcrumb-sep">/</span>
-            <span class="breadcrumb-active">Dashboard</span>
+            <span class="sep">/</span>
+            <span class="current">Dashboard</span>
           </div>
         </div>
+
         <div class="nav-right">
-          <div class="guide-selector" id="guide-selector">
-            <span class="guide-selector-label">Guide:</span>
+          <!-- guide selector -->
+          <div class="guide-selector">
+            <span class="selector-label">Guide:</span>
             <button class="guide-chip selected" data-guide="0">
               Onboarding
             </button>
             <button class="guide-chip" data-guide="1">Profile Setup</button>
           </div>
-          <button class="btn-tour" id="startTourBtn">
-            <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
-              <circle
-                cx="7"
-                cy="7"
-                r="6"
-                stroke="currentColor"
-                stroke-width="1.5"
-              />
-              <path
-                d="M7 4v3l2 2"
-                stroke="currentColor"
-                stroke-width="1.5"
-                stroke-linecap="round"
-              />
-            </svg>
-            Start tour
-          </button>
-          <div class="nav-avatar">AP</div>
+          <!-- tour button -->
+          <button class="tour-btn" id="startTourBtn">▶ Start tour</button>
+          <!-- user avatar -->
+          <div class="avatar">AP</div>
         </div>
-      </nav>
+      </div>
 
-      <!-- APP BODY -->
-      <div class="app-body">
-        <!-- SIDEBAR -->
-        <aside class="sidebar">
-          <div class="sidebar-section-label">Main</div>
-          <div class="sidebar-item active" id="nav-dashboard">
-            <svg width="15" height="15" viewBox="0 0 15 15" fill="none">
-              <rect
-                x="1"
-                y="1"
-                width="5.5"
-                height="5.5"
-                rx="1.5"
-                fill="currentColor"
-                opacity="0.9"
-              />
-              <rect
-                x="8.5"
-                y="1"
-                width="5.5"
-                height="5.5"
-                rx="1.5"
-                fill="currentColor"
-                opacity="0.4"
-              />
-              <rect
-                x="1"
-                y="8.5"
-                width="5.5"
-                height="5.5"
-                rx="1.5"
-                fill="currentColor"
-                opacity="0.4"
-              />
-              <rect
-                x="8.5"
-                y="8.5"
-                width="5.5"
-                height="5.5"
-                rx="1.5"
-                fill="currentColor"
-                opacity="0.9"
-              />
-            </svg>
-            Dashboard
-          </div>
-          <div class="sidebar-item" id="nav-users">
-            <svg width="15" height="15" viewBox="0 0 15 15" fill="none">
-              <circle
-                cx="7.5"
-                cy="5"
-                r="3"
-                stroke="currentColor"
-                stroke-width="1.4"
-              />
-              <path
-                d="M1.5 13c0-3.314 2.686-5 6-5s6 1.686 6 5"
-                stroke="currentColor"
-                stroke-width="1.4"
-                stroke-linecap="round"
-              />
-            </svg>
-            Users
-          </div>
-          <div class="sidebar-item" id="nav-reports">
-            <svg width="15" height="15" viewBox="0 0 15 15" fill="none">
-              <rect
-                x="1.5"
-                y="1.5"
-                width="12"
-                height="12"
-                rx="2"
-                stroke="currentColor"
-                stroke-width="1.4"
-              />
-              <path
-                d="M4 10l2.5-3 2.5 2 2.5-4"
-                stroke="currentColor"
-                stroke-width="1.4"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-              />
-            </svg>
-            Reports
-          </div>
-          <div class="sidebar-section-label" style="margin-top: 16px;">
-            Settings
-          </div>
-          <div class="sidebar-item" id="nav-settings">
-            <svg width="15" height="15" viewBox="0 0 15 15" fill="none">
-              <circle
-                cx="7.5"
-                cy="7.5"
-                r="2"
-                stroke="currentColor"
-                stroke-width="1.4"
-              />
-              <path
-                d="M7.5 1v1.5M7.5 12.5V14M1 7.5h1.5M12.5 7.5H14M2.93 2.93l1.06 1.06M11 11l1.06 1.06M2.93 12.07l1.06-1.06M11 4l1.06-1.06"
-                stroke="currentColor"
-                stroke-width="1.4"
-                stroke-linecap="round"
-              />
-            </svg>
-            Settings
-          </div>
-        </aside>
+      <!-- body with sidebar + main content -->
+      <div class="body">
+        <!-- sidebar -->
+        <div class="sidebar">
+          <p class="sidebar-label">Main</p>
+          <div class="sidebar-item active" id="nav-dashboard">📊 Dashboard</div>
+          <div class="sidebar-item" id="nav-users">👥 Users</div>
+          <div class="sidebar-item" id="nav-reports">📈 Reports</div>
+          <p class="sidebar-label" style="margin-top: 12px;">Other</p>
+          <div class="sidebar-item" id="nav-settings">⚙️ Settings</div>
+        </div>
 
-        <!-- MAIN CONTENT -->
-        <main class="main">
-          <!-- Page Header -->
-          <div class="page-header">
+        <!-- main content -->
+        <div class="main">
+          <!-- page heading -->
+          <div class="page-top">
             <div>
-              <h1 class="page-title">Dashboard</h1>
-              <p class="page-subtitle">
-                Welcome back, Aayush. Here's what's happening today.
-              </p>
+              <h1>Dashboard</h1>
+              <p>Welcome back, Aayush. Here's what's happening today.</p>
             </div>
-            <button class="btn-secondary" id="btn-export">Export report</button>
+            <button class="export-btn" id="btn-export">Export report</button>
           </div>
 
-          <!-- Stats Row -->
-          <div class="stats-row">
+          <!-- stat cards -->
+          <div class="stats">
             <div class="stat-card" id="stat-active">
-              <div
-                class="stat-icon"
-                style="background: #f0fdf4; color: #16a34a;"
-              >
-                <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-                  <circle
-                    cx="8"
-                    cy="8"
-                    r="6.5"
-                    stroke="currentColor"
-                    stroke-width="1.5"
-                  />
-                  <path
-                    d="M5 8l2 2 4-4"
-                    stroke="currentColor"
-                    stroke-width="1.5"
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                  />
-                </svg>
-              </div>
-              <div class="stat-info">
-                <div class="stat-label">Active users</div>
-                <div class="stat-val">1,284</div>
-                <div class="stat-change positive">+12% this week</div>
-              </div>
+              <div class="stat-label">Active users</div>
+              <div class="stat-num">1,284</div>
+              <div class="stat-change">+12% this week</div>
             </div>
             <div class="stat-card" id="stat-adoption">
-              <div
-                class="stat-icon"
-                style="background: #eff6ff; color: #2563eb;"
-              >
-                <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-                  <path
-                    d="M2 12l4-4 3 3 5-7"
-                    stroke="currentColor"
-                    stroke-width="1.5"
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                  />
-                </svg>
-              </div>
-              <div class="stat-info">
-                <div class="stat-label">Adoption rate</div>
-                <div class="stat-val">73%</div>
-                <div class="stat-change positive">+5% this month</div>
-              </div>
+              <div class="stat-label">Adoption rate</div>
+              <div class="stat-num">73%</div>
+              <div class="stat-change">+5% this month</div>
             </div>
             <div class="stat-card" id="stat-tasks">
-              <div
-                class="stat-icon"
-                style="background: #fef9c3; color: #ca8a04;"
-              >
-                <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-                  <rect
-                    x="2"
-                    y="2"
-                    width="12"
-                    height="12"
-                    rx="2"
-                    stroke="currentColor"
-                    stroke-width="1.5"
-                  />
-                  <path
-                    d="M5 8h6M5 5.5h3M5 10.5h4"
-                    stroke="currentColor"
-                    stroke-width="1.5"
-                    stroke-linecap="round"
-                  />
-                </svg>
-              </div>
-              <div class="stat-info">
-                <div class="stat-label">Tasks done</div>
-                <div class="stat-val">432</div>
-                <div class="stat-change positive">+28 today</div>
-              </div>
+              <div class="stat-label">Tasks done</div>
+              <div class="stat-num">432</div>
+              <div class="stat-change">+28 today</div>
             </div>
             <div class="stat-card" id="stat-guides">
-              <div
-                class="stat-icon"
-                style="background: #fdf4ff; color: #9333ea;"
-              >
-                <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-                  <circle
-                    cx="8"
-                    cy="8"
-                    r="6.5"
-                    stroke="currentColor"
-                    stroke-width="1.5"
-                  />
-                  <path
-                    d="M8 5v3.5l2.5 1.5"
-                    stroke="currentColor"
-                    stroke-width="1.5"
-                    stroke-linecap="round"
-                  />
-                </svg>
-              </div>
-              <div class="stat-info">
-                <div class="stat-label">Guides launched</div>
-                <div class="stat-val">38</div>
-                <div class="stat-change positive">+3 this week</div>
-              </div>
+              <div class="stat-label">Guides launched</div>
+              <div class="stat-num">38</div>
+              <div class="stat-change">+3 this week</div>
             </div>
           </div>
 
-          <!-- Two column layout -->
+          <!-- two column section -->
           <div class="two-col">
-            <!-- Create User Form -->
+            <!-- add user form -->
             <div class="card">
-              <div class="card-header">
+              <div class="card-top">
                 <div class="card-title">Add new user</div>
-                <span class="card-badge">Form</span>
+                <span class="badge">Form</span>
               </div>
-              <div class="form-row">
-                <div class="form-group">
-                  <label class="form-label" for="inp-first">First name</label>
-                  <input
-                    class="form-input"
-                    id="inp-first"
-                    placeholder="e.g. Aayush"
-                    autocomplete="off"
-                  />
+              <div class="row-2">
+                <div>
+                  <label>First name</label>
+                  <input type="text" id="inp-first" placeholder="e.g. Aayush" />
                 </div>
-                <div class="form-group">
-                  <label class="form-label" for="inp-last">Last name</label>
-                  <input
-                    class="form-input"
-                    id="inp-last"
-                    placeholder="e.g. Pandey"
-                    autocomplete="off"
-                  />
+                <div>
+                  <label>Last name</label>
+                  <input type="text" id="inp-last" placeholder="e.g. Pandey" />
                 </div>
               </div>
-              <div class="form-group">
-                <label class="form-label" for="inp-email">Email address</label>
+              <div class="field">
+                <label>Email address</label>
                 <input
-                  class="form-input"
-                  id="inp-email"
                   type="email"
+                  id="inp-email"
                   placeholder="user@company.com"
-                  autocomplete="off"
                 />
               </div>
-              <div class="form-group">
-                <label class="form-label" for="inp-role">Role</label>
+              <div class="field">
+                <label>Role</label>
                 <input
-                  class="form-input"
+                  type="text"
                   id="inp-role"
                   placeholder="e.g. Solutions Engineer"
-                  autocomplete="off"
                 />
               </div>
-              <div class="form-footer">
-                <span class="form-hint"
-                  >User will receive an invite on creation.</span
-                >
-                <button class="btn-primary" id="btn-submit">Create user</button>
+              <div class="form-bottom">
+                <span class="hint">User will get an invite on creation.</span>
+                <button class="submit-btn" id="btn-submit">Create user</button>
               </div>
             </div>
 
-            <!-- Activity Log -->
+            <!-- activity log -->
             <div class="card">
-              <div class="card-header">
+              <div class="card-top">
                 <div class="card-title">Recent activity</div>
-                <span
-                  class="card-badge"
-                  style="background:#f0fdf4; color:#16a34a;"
-                  >Live</span
-                >
+                <span class="badge green">Live</span>
               </div>
               <div class="activity-list">
                 <div class="activity-item">
-                  <div
-                    class="activity-dot"
-                    style="background:#dcfce7; color:#16a34a;"
-                  >
-                    <svg width="10" height="10" viewBox="0 0 10 10" fill="none">
-                      <circle
-                        cx="5"
-                        cy="5"
-                        r="4.5"
-                        stroke="currentColor"
-                        stroke-width="1.2"
-                      />
-                      <path
-                        d="M3 5l1.5 1.5 2.5-3"
-                        stroke="currentColor"
-                        stroke-width="1.2"
-                        stroke-linecap="round"
-                        stroke-linejoin="round"
-                      />
-                    </svg>
-                  </div>
-                  <div class="activity-body">
-                    <div class="activity-text">
-                      <strong>Rahul Mehta</strong> completed onboarding tour
+                  <div class="a-dot green">✓</div>
+                  <div>
+                    <div class="a-text">
+                      <b>Rahul Mehta</b> completed onboarding tour
                     </div>
-                    <div class="activity-time">2 minutes ago</div>
+                    <div class="a-time">2 minutes ago</div>
                   </div>
                 </div>
                 <div class="activity-item">
-                  <div
-                    class="activity-dot"
-                    style="background:#eff6ff; color:#2563eb;"
-                  >
-                    <svg width="10" height="10" viewBox="0 0 10 10" fill="none">
-                      <circle
-                        cx="5"
-                        cy="4"
-                        r="2.5"
-                        stroke="currentColor"
-                        stroke-width="1.2"
-                      />
-                      <path
-                        d="M1 9c0-2.21 1.79-3 4-3s4 .79 4 3"
-                        stroke="currentColor"
-                        stroke-width="1.2"
-                        stroke-linecap="round"
-                      />
-                    </svg>
-                  </div>
-                  <div class="activity-body">
-                    <div class="activity-text">
-                      <strong>Priya Sharma</strong> was added as Admin
+                  <div class="a-dot blue">+</div>
+                  <div>
+                    <div class="a-text">
+                      <b>Priya Sharma</b> was added as Admin
                     </div>
-                    <div class="activity-time">1 hour ago</div>
+                    <div class="a-time">1 hour ago</div>
                   </div>
                 </div>
                 <div class="activity-item">
-                  <div
-                    class="activity-dot"
-                    style="background:#fef9c3; color:#ca8a04;"
-                  >
-                    <svg width="10" height="10" viewBox="0 0 10 10" fill="none">
-                      <path
-                        d="M5 1.5l1 2.5H9L7 5.5l.75 2.5L5 6.5 2.25 8 3 5.5 1 4h3z"
-                        stroke="currentColor"
-                        stroke-width="1"
-                        stroke-linejoin="round"
-                      />
-                    </svg>
-                  </div>
-                  <div class="activity-body">
-                    <div class="activity-text">
-                      New guide <strong>Profile Setup</strong> published
+                  <div class="a-dot yellow">★</div>
+                  <div>
+                    <div class="a-text">
+                      New guide <b>Profile Setup</b> published
                     </div>
-                    <div class="activity-time">3 hours ago</div>
+                    <div class="a-time">3 hours ago</div>
                   </div>
                 </div>
                 <div class="activity-item">
-                  <div
-                    class="activity-dot"
-                    style="background:#f3f4f6; color:#6b7280;"
-                  >
-                    <svg width="10" height="10" viewBox="0 0 10 10" fill="none">
-                      <rect
-                        x="1"
-                        y="1"
-                        width="8"
-                        height="8"
-                        rx="1.5"
-                        stroke="currentColor"
-                        stroke-width="1.2"
-                      />
-                      <path
-                        d="M3 5h4M3 3.5h2M3 6.5h3"
-                        stroke="currentColor"
-                        stroke-width="1.2"
-                        stroke-linecap="round"
-                      />
-                    </svg>
-                  </div>
-                  <div class="activity-body">
-                    <div class="activity-text">
-                      Report for <strong>March 2026</strong> exported
+                  <div class="a-dot gray">📄</div>
+                  <div>
+                    <div class="a-text">
+                      Report for <b>March 2026</b> exported
                     </div>
-                    <div class="activity-time">1 day ago</div>
+                    <div class="a-time">1 day ago</div>
                   </div>
                 </div>
                 <div class="activity-item">
-                  <div
-                    class="activity-dot"
-                    style="background:#fdf4ff; color:#9333ea;"
-                  >
-                    <svg width="10" height="10" viewBox="0 0 10 10" fill="none">
-                      <circle
-                        cx="5"
-                        cy="5"
-                        r="4.5"
-                        stroke="currentColor"
-                        stroke-width="1.2"
-                      />
-                      <path
-                        d="M5 3v2.5l1.5 1"
-                        stroke="currentColor"
-                        stroke-width="1.2"
-                        stroke-linecap="round"
-                      />
-                    </svg>
-                  </div>
-                  <div class="activity-body">
-                    <div class="activity-text">
-                      Guide engine v2.0 <strong>deployed</strong>
-                    </div>
-                    <div class="activity-time">2 days ago</div>
+                  <div class="a-dot purple">▲</div>
+                  <div>
+                    <div class="a-text">Guide engine v2.0 <b>deployed</b></div>
+                    <div class="a-time">2 days ago</div>
                   </div>
                 </div>
               </div>
             </div>
           </div>
-        </main>
+        </div>
       </div>
     </div>
 

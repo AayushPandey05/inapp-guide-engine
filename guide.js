@@ -1,5 +1,4 @@
-//! GUIDE DEFINITIONS
-
+// all the guide steps are stored here
 const guides = [
   {
     id: "onboarding",
@@ -9,31 +8,31 @@ const guides = [
         element: "#startTourBtn",
         title: "Welcome to AppDash!",
         description:
-          "This is your guide button. Click it anytime to start or restart a walkthrough for any feature in the app.",
+          "This button starts the guided tour. You can click it anytime to restart the walkthrough.",
       },
       {
         element: "#stat-active",
-        title: "Live metrics at a glance",
+        title: "Your live stats",
         description:
-          "Your dashboard shows real-time stats — active users, adoption rate, tasks completed, and guides launched.",
+          "These cards show real-time numbers like active users, adoption rate, and tasks completed.",
       },
       {
         element: "#nav-users",
-        title: "Manage your team",
+        title: "Manage users here",
         description:
-          "Head here to add, remove, or update roles for any user — all from one central place.",
+          "Click this to go to the Users section where you can add or remove team members.",
       },
       {
         element: "#inp-email",
-        title: "Email address",
+        title: "Enter user email",
         description:
-          "Enter the new user's work email. This becomes their unique login ID across the entire platform.",
+          "Type the new user's work email here. This will be their login ID on the platform.",
       },
       {
         element: "#btn-submit",
-        title: "You're all set!",
+        title: "Create the user",
         description:
-          "Hit Create user to finish. They'll instantly receive an invite email with login instructions.",
+          "Click this button to add the user. They will get an invite email right away.",
       },
     ],
   },
@@ -43,128 +42,113 @@ const guides = [
     steps: [
       {
         element: "#inp-first",
-        title: "Enter your first name",
+        title: "Your first name",
         description:
-          "Start by filling in your first name to personalise your profile across the workspace.",
+          "Start by entering your first name to set up your profile.",
       },
       {
         element: "#inp-last",
-        title: "Add your last name",
-        description:
-          "Your full name helps teammates find you quickly in the directory and mentions.",
+        title: "Your last name",
+        description: "Add your last name so teammates can find you easily.",
       },
       {
         element: "#inp-role",
-        title: "Set your role",
+        title: "Your role",
         description:
-          "Enter your job title. This is used to assign the right tasks, permissions, and guide flows to you.",
+          "Enter your job title. This helps assign the right tasks and permissions to you.",
       },
       {
         element: "#btn-submit",
-        title: "Save your profile",
+        title: "Save profile",
         description:
-          "All done! Click here to save. Your profile updates apply instantly across the platform.",
+          "Click here to save. Your changes will apply immediately across the platform.",
       },
     ],
   },
 ];
 
-//! STATE
-const state = {
-  currentGuide: 0,
-  currentStep: 0,
-  isActive: false,
-  highlightedEl: null,
-};
+// keeping track of where we are in the tour
+let currentGuide = 0;
+let currentStep = 0;
+let tourActive = false;
+let highlightedEl = null;
 
-//! DOM REFERENCES
+// grabbing all the tooltip elements from the DOM
 const overlay = document.getElementById("guide-overlay");
 const tooltip = document.getElementById("guide-tooltip");
-const ttStep = document.getElementById("tt-step");
-const ttName = document.getElementById("tt-guide-name");
-const ttTitle = document.getElementById("tt-title");
-const ttDesc = document.getElementById("tt-desc");
-const ttDots = document.getElementById("tt-dots");
-const ttNext = document.getElementById("tt-next");
-const ttPrev = document.getElementById("tt-prev");
-const ttSkip = document.getElementById("tt-skip");
+const stepLabel = document.getElementById("tt-step");
+const guideName = document.getElementById("tt-guide-name");
+const titleEl = document.getElementById("tt-title");
+const descEl = document.getElementById("tt-desc");
+const dotsEl = document.getElementById("tt-dots");
+const nextBtn = document.getElementById("tt-next");
+const prevBtn = document.getElementById("tt-prev");
+const skipBtn = document.getElementById("tt-skip");
 const toast = document.getElementById("toast");
 
-//! LOCALSTORAGE HELPERS
-function getProgress() {
-  try {
-    return JSON.parse(localStorage.getItem("guideProgress") || "{}");
-  } catch {
-    return {};
-  }
+// save and load progress from localStorage
+function saveProgress(guideId, step) {
+  let progress = JSON.parse(localStorage.getItem("guideProgress") || "{}");
+  progress[guideId] = step;
+  localStorage.setItem("guideProgress", JSON.stringify(progress));
 }
 
-function saveProgress(guideId, stepIndex) {
-  try {
-    const progress = getProgress();
-    progress[guideId] = stepIndex;
-    localStorage.setItem("guideProgress", JSON.stringify(progress));
-  } catch (e) {
-    console.warn("Could not save progress:", e);
-  }
+function loadProgress(guideId) {
+  let progress = JSON.parse(localStorage.getItem("guideProgress") || "{}");
+  return progress[guideId] || 0;
 }
 
 function clearProgress(guideId) {
-  try {
-    const progress = getProgress();
-    delete progress[guideId];
-    localStorage.setItem("guideProgress", JSON.stringify(progress));
-  } catch (e) {
-    console.warn("Could not clear progress:", e);
-  }
+  let progress = JSON.parse(localStorage.getItem("guideProgress") || "{}");
+  delete progress[guideId];
+  localStorage.setItem("guideProgress", JSON.stringify(progress));
 }
 
-//! TOAST
-let toastTimer = null;
-
-function showToast(message) {
-  toast.textContent = message;
+// show a small toast message at the bottom
+function showToast(msg) {
+  toast.textContent = msg;
   toast.classList.add("show");
-  if (toastTimer) clearTimeout(toastTimer);
-  toastTimer = setTimeout(() => toast.classList.remove("show"), 2800);
+  setTimeout(() => toast.classList.remove("show"), 2800);
 }
 
-//! HIGHLIGHT
-function clearHighlight() {
-  if (state.highlightedEl) {
-    state.highlightedEl.classList.remove("guide-highlight");
-    state.highlightedEl = null;
+// remove highlight from the previous element
+function removeHighlight() {
+  if (highlightedEl) {
+    highlightedEl.classList.remove("guide-highlight");
+    highlightedEl = null;
   }
 }
 
-function highlightElement(el) {
-  clearHighlight();
-  el.classList.add("guide-highlight");
-  state.highlightedEl = el;
+// draw the progress dots at the bottom of tooltip
+function renderDots(total, active) {
+  dotsEl.innerHTML = "";
+  for (let i = 0; i < total; i++) {
+    let dot = document.createElement("div");
+    dot.className = "dot" + (i <= active ? " done" : "");
+    dotsEl.appendChild(dot);
+  }
 }
 
-//! TOOLTIP POSITIONING
+// position the tooltip near the highlighted element
 function positionTooltip(el) {
-  // Small delay so scroll settles first
   setTimeout(() => {
-    const rect = el.getBoundingClientRect();
-    const tipW = 290;
-    const tipH = 210;
-    const gap = 14;
-    const vw = window.innerWidth;
-    const vh = window.innerHeight;
+    let rect = el.getBoundingClientRect();
+    let tipWidth = 290;
+    let tipHeight = 210;
+    let gap = 14;
 
-    // Default: below the element
+    // place it below the element by default
     let top = rect.bottom + gap;
-    let left = rect.left + rect.width / 2 - tipW / 2;
+    let left = rect.left + rect.width / 2 - tipWidth / 2;
 
-    // Flip above if it goes off the bottom
-    if (top + tipH > vh - 16) {
-      top = rect.top - tipH - gap;
+    // if it goes off the bottom, show it above instead
+    if (top + tipHeight > window.innerHeight - 16) {
+      top = rect.top - tipHeight - gap;
     }
 
-    // Clamp horizontally
-    if (left + tipW > vw - 16) left = vw - tipW - 16;
+    // make sure it doesn't go off screen horizontally
+    if (left + tipWidth > window.innerWidth - 16)
+      left = window.innerWidth - tipWidth - 16;
     if (left < 16) left = 16;
 
     tooltip.style.top = top + "px";
@@ -172,130 +156,113 @@ function positionTooltip(el) {
   }, 130);
 }
 
-//! PROGRESS DOTS
-function renderDots(total, current) {
-  ttDots.innerHTML = "";
-  for (let i = 0; i < total; i++) {
-    const dot = document.createElement("div");
-    dot.className = "dot" + (i <= current ? " done" : "");
-    ttDots.appendChild(dot);
-  }
-}
-
-//! CORE — SHOW STEP
+// this is the main function - shows a specific step
 function showStep(index) {
-  const guide = guides[state.currentGuide];
-  const steps = guide.steps;
+  let guide = guides[currentGuide];
+  let steps = guide.steps;
 
-  // Past last step → finish tour
+  // if we've gone past the last step, end the tour
   if (index >= steps.length) {
     endTour(true);
     return;
   }
 
-  // Before first step → do nothing
   if (index < 0) return;
 
-  state.currentStep = index;
+  currentStep = index;
   saveProgress(guide.id, index);
 
-  const step = steps[index];
-  const el = document.querySelector(step.element);
+  let step = steps[index];
+  let el = document.querySelector(step.element);
 
-  // Element missing → warn and skip
+  // if element doesn't exist just skip to the next step
   if (!el) {
-    console.warn(`[guide.js] Element not found: ${step.element} — skipping`);
-    showToast("Element not found, skipping step...");
-    setTimeout(() => showStep(index + 1), 900);
+    console.warn("Element not found:", step.element);
+    setTimeout(() => showStep(index + 1), 800);
     return;
   }
 
-  // Highlight + scroll
-  highlightElement(el);
+  // highlight the element and scroll to it
+  removeHighlight();
+  el.classList.add("guide-highlight");
+  highlightedEl = el;
   el.scrollIntoView({ behavior: "smooth", block: "center" });
   positionTooltip(el);
 
-  // Populate tooltip
-  ttStep.textContent = `Step ${index + 1} of ${steps.length}`;
-  ttName.textContent = guide.name;
-  ttTitle.textContent = step.title;
-  ttDesc.textContent = step.description;
+  // update the tooltip content
+  stepLabel.textContent = "Step " + (index + 1) + " of " + steps.length;
+  guideName.textContent = guide.name;
+  titleEl.textContent = step.title;
+  descEl.textContent = step.description;
 
-  // Prev button visibility
-  ttPrev.style.visibility = index === 0 ? "hidden" : "visible";
+  // hide prev button on first step
+  prevBtn.style.visibility = index === 0 ? "hidden" : "visible";
 
-  // Next button label
-  ttNext.textContent = index === steps.length - 1 ? "Finish ✓" : "Next →";
+  // change next button text on last step
+  nextBtn.textContent = index === steps.length - 1 ? "Finish ✓" : "Next →";
 
-  // Progress dots
   renderDots(steps.length, index);
 
-  // Show overlay + tooltip
+  // show the overlay and tooltip
   overlay.classList.add("active");
   tooltip.classList.add("active");
 }
 
-//! CORE — START TOUR
+// start a tour from the beginning (or resume if saved)
 function startTour(guideIndex) {
-  if (guideIndex !== undefined) state.currentGuide = guideIndex;
+  if (guideIndex !== undefined) currentGuide = guideIndex;
+  tourActive = true;
 
-  state.isActive = true;
+  let guide = guides[currentGuide];
+  let savedStep = loadProgress(guide.id);
 
-  const guide = guides[state.currentGuide];
-  const savedStep = getProgress()[guide.id] || 0;
-
-  // If previously completed, restart from 0
-  const startFrom = savedStep >= guide.steps.length ? 0 : savedStep;
-
+  // if they finished before, start fresh
+  let startFrom = savedStep >= guide.steps.length ? 0 : savedStep;
   showStep(startFrom);
 }
 
-//! CORE — END TOUR
-function endTour(completed = false) {
-  clearHighlight();
+// end the tour and clean everything up
+function endTour(finished) {
+  removeHighlight();
   overlay.classList.remove("active");
   tooltip.classList.remove("active");
-  state.isActive = false;
+  tourActive = false;
 
-  if (completed) {
-    clearProgress(guides[state.currentGuide].id);
+  if (finished) {
+    clearProgress(guides[currentGuide].id);
     showToast("🎉 Tour complete! You're all set.");
   }
 
-  // Notify app.js to reset the button
-  document.dispatchEvent(
-    new CustomEvent("tourEnded", { detail: { completed } }),
-  );
+  // tell app.js the tour ended so it can reset the button
+  document.dispatchEvent(new CustomEvent("tourEnded"));
 }
 
-//! TOOLTIP BUTTON EVENTS
-ttNext.addEventListener("click", () => showStep(state.currentStep + 1));
-ttPrev.addEventListener("click", () => showStep(state.currentStep - 1));
-ttSkip.addEventListener("click", () => endTour(false));
+// button click events
+nextBtn.addEventListener("click", () => showStep(currentStep + 1));
+prevBtn.addEventListener("click", () => showStep(currentStep - 1));
+skipBtn.addEventListener("click", () => endTour(false));
 overlay.addEventListener("click", () => endTour(false));
 
-//! KEYBOARD NAVIGATION
+// keyboard shortcuts for navigating
 document.addEventListener("keydown", (e) => {
-  if (!state.isActive) return;
+  if (!tourActive) return;
 
   if (e.key === "ArrowRight" || e.key === "Enter") {
     e.preventDefault();
-    showStep(state.currentStep + 1);
+    showStep(currentStep + 1);
   }
   if (e.key === "ArrowLeft") {
     e.preventDefault();
-    showStep(state.currentStep - 1);
+    showStep(currentStep - 1);
   }
   if (e.key === "Escape") {
-    e.preventDefault();
     endTour(false);
   }
 });
 
-//! PUBLIC API (used by app.js)
+// expose functions so app.js can use them
 window.guideEngine = {
   startTour,
   endTour,
-  getState: () => state,
-  getGuides: () => guides,
+  getState: () => ({ currentGuide, currentStep, tourActive }),
 };

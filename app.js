@@ -1,26 +1,25 @@
-//! DOM REFERENCES
+// grabbing all the elements i need
 const startTourBtn = document.getElementById("startTourBtn");
 const guideChips = document.querySelectorAll(".guide-chip");
 const sidebarItems = document.querySelectorAll(".sidebar-item");
 const exportBtn = document.getElementById("btn-export");
 const submitBtn = document.getElementById("btn-submit");
 
-const inputs = {
-  first: document.getElementById("inp-first"),
-  last: document.getElementById("inp-last"),
-  email: document.getElementById("inp-email"),
-  role: document.getElementById("inp-role"),
-};
+const firstInput = document.getElementById("inp-first");
+const lastInput = document.getElementById("inp-last");
+const emailInput = document.getElementById("inp-email");
+const roleInput = document.getElementById("inp-role");
 
-//! HELPERS
-function showToast(message) {
-  const toast = document.getElementById("toast");
-  toast.textContent = message;
+// show toast (reusing the same one from guide.js)
+function showToast(msg) {
+  let toast = document.getElementById("toast");
+  toast.textContent = msg;
   toast.classList.add("show");
   setTimeout(() => toast.classList.remove("show"), 2800);
 }
 
-function setTourBtnActive(active) {
+// update the start tour button look
+function setTourBtn(active) {
   if (active) {
     startTourBtn.classList.add("active");
     startTourBtn.innerHTML = `
@@ -42,45 +41,45 @@ function setTourBtnActive(active) {
   }
 }
 
-//! START TOUR BUTTON
+// start or stop the tour when button is clicked
 startTourBtn.addEventListener("click", () => {
-  const { isActive, currentGuide } = window.guideEngine.getState();
+  let state = window.guideEngine.getState();
 
-  if (isActive) {
+  if (state.tourActive) {
     window.guideEngine.endTour(false);
-    setTourBtnActive(false);
+    setTourBtn(false);
   } else {
-    window.guideEngine.startTour(currentGuide);
-    setTourBtnActive(true);
+    window.guideEngine.startTour(state.currentGuide);
+    setTourBtn(true);
   }
 });
 
-//! Reset button when tour ends from tooltip (skip / finish / overlay click)
+// reset button when tour ends from inside guide.js
 document.addEventListener("tourEnded", () => {
-  setTourBtnActive(false);
+  setTourBtn(false);
 });
 
-//! GUIDE CHIP SELECTOR
+// switching between guides using the chips
 guideChips.forEach((chip) => {
   chip.addEventListener("click", () => {
-    const guideIndex = parseInt(chip.getAttribute("data-guide"), 10);
-    const state = window.guideEngine.getState();
+    let guideIndex = parseInt(chip.getAttribute("data-guide"));
+    let state = window.guideEngine.getState();
 
-    // Update chip UI
+    // update which chip looks selected
     guideChips.forEach((c) => c.classList.remove("selected"));
     chip.classList.add("selected");
 
-    // Update state
+    // update current guide in the engine
     state.currentGuide = guideIndex;
 
-    // If tour already running, switch to new guide immediately
-    if (state.isActive) {
+    // if tour is running, switch to new guide right away
+    if (state.tourActive) {
       window.guideEngine.startTour(guideIndex);
     }
   });
 });
 
-//! SIDEBAR NAVIGATION
+// sidebar active item switching
 sidebarItems.forEach((item) => {
   item.addEventListener("click", () => {
     sidebarItems.forEach((i) => i.classList.remove("active"));
@@ -88,21 +87,13 @@ sidebarItems.forEach((item) => {
   });
 });
 
-//! EXPORT BUTTON
+// export button just shows a toast for now
 exportBtn.addEventListener("click", () => {
   showToast("📄 Report exported successfully!");
 });
 
-//! CREATE USER FORM
-function validateEmail(email) {
-  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
-}
-
-function clearForm() {
-  Object.values(inputs).forEach((inp) => (inp.value = ""));
-}
-
-function highlightError(input) {
+// highlight an input red if validation fails
+function showError(input) {
   input.style.borderColor = "#dc2626";
   input.style.boxShadow = "0 0 0 3px rgba(220, 38, 38, 0.1)";
   setTimeout(() => {
@@ -111,48 +102,50 @@ function highlightError(input) {
   }, 2000);
 }
 
-submitBtn.addEventListener("click", () => {
-  const first = inputs.first.value.trim();
-  const last = inputs.last.value.trim();
-  const email = inputs.email.value.trim();
-  const role = inputs.role.value.trim();
+// basic email format check
+function isValidEmail(email) {
+  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+}
 
-  // Validate — highlight offending field
+// form submit
+submitBtn.addEventListener("click", () => {
+  let first = firstInput.value.trim();
+  let last = lastInput.value.trim();
+  let email = emailInput.value.trim();
+  let role = roleInput.value.trim();
+
+  // check each field one by one
   if (!first) {
-    highlightError(inputs.first);
+    showError(firstInput);
     showToast("⚠️ First name is required.");
     return;
   }
   if (!last) {
-    highlightError(inputs.last);
+    showError(lastInput);
     showToast("⚠️ Last name is required.");
     return;
   }
   if (!email) {
-    highlightError(inputs.email);
+    showError(emailInput);
     showToast("⚠️ Email is required.");
     return;
   }
-  if (!validateEmail(email)) {
-    highlightError(inputs.email);
-    showToast("⚠️ Enter a valid email address.");
+  if (!isValidEmail(email)) {
+    showError(emailInput);
+    showToast("⚠️ Enter a valid email.");
     return;
   }
   if (!role) {
-    highlightError(inputs.role);
+    showError(roleInput);
     showToast("⚠️ Role is required.");
     return;
   }
 
-  // Success
-  console.log("New user created:", { first, last, email, role });
-  clearForm();
-  showToast(`✓ ${first} ${last} added successfully!`);
-});
+  // all good, clear the form and show success
+  firstInput.value = "";
+  lastInput.value = "";
+  emailInput.value = "";
+  roleInput.value = "";
 
-//! INIT
-console.log(
-  "%c inapp-guide-engine ",
-  "background:#16a34a;color:#fff;font-weight:600;border-radius:4px;padding:2px 6px;",
-);
-console.log("Guide engine ready. Click 'Start tour' to begin.");
+  showToast("✓ " + first + " " + last + " added successfully!");
+});
