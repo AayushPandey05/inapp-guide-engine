@@ -6,7 +6,7 @@ A lightweight **Digital Adoption Platform (DAP)** built with vanilla HTML, CSS, 
 
 ## Live Demo
 
-[View Live →](#) &nbsp;|&nbsp; [GitHub →](#)
+[View Live →](https://inapp-guide-engine.heyitsaayush.me/)
 
 ---
 
@@ -118,4 +118,4 @@ Built as a learning project inspired by enterprise digital adoption platforms li
 ## Author
 
 **Aayush Pandey**
-[LinkedIn](https://linkedin.com/in/aayushpandey05) · [GitHub](https://github.com/AayushPandey05)
+[LinkedIn](https://linkedin.com/in/aayushpandey05)
